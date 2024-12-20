@@ -1,5 +1,3 @@
-
-
 use serde_json::Deserializer;
 use serde::{Deserialize, Serialize};
 
@@ -14,11 +12,4 @@ pub struct Coverage {
     pub(crate) priority: i8,
     pub(crate) penalty: i8,
     pub(crate) types: Vec<String>,
-}
-
-impl Coverage {
-    pub fn shift_random(&self) -> String {
-        let mut rng = rand::thread_rng(); // Create an internal RNG
-        self.shift.choose(&mut rng).unwrap().to_string()
-    }
 }
