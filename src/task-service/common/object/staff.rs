@@ -2,8 +2,9 @@ use serde_json::Deserializer;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, PartialEq, Eq)]
-pub struct Coverage {
+pub struct Staff {
     pub(crate) id: String,
+    pub(crate) name: String,
     pub(crate) staff_groups: Vec<String>,
     pub(crate) shift: Vec<String>,
     pub(crate) desire_value: i8,
