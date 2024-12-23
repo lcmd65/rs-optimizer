@@ -1,2 +1,2 @@
 # rs-optimizer
-Optimize Framework on Rust (open src)
+Optimize Framework on Rust
