@@ -1,0 +1,29 @@
+# Biên dịch và xây dựng
+/target/
+
+# Tệp cấu hình
+**/*.rs.bk
+
+# IDE/Editor-specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+
+# Rust/Cargo-specific files
+Cargo.lock
+.cargo/
+
+# Tệp log/debug
+*.log
+debug.log
+*.dSYM/
+*.stackdump
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
+
+# Git
+*.orig
