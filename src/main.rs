@@ -1,25 +1,3 @@
-//! Demo of Rust and axum web framework.
-//!
-//! <https://github.com/joelparkerhenderson/demo-rust-axum>
-//!
-//! This demo shows how to:
-//!
-//! * Create a project using Rust and the axum web framework.
-//!
-//! * Create axum router routes and their handler functions.
-//!
-//! * Create responses with HTTP status code OK and HTML text.
-//!
-//! * Create a binary image and respond with a custom header.
-//!
-//! * Create functionality for HTTP GET, PUT, PATCH, POST, DELETE.
-//!
-//! * Use axum extractors for query parameters and path parameters.
-//!
-//! * Create a data store and access it using RESTful routes.
-//!
-//! For more see the file `README.md` in the project root.
-
 /// Use axum capabilities.
 use axum::routing::get;
 
@@ -35,6 +13,11 @@ use std::collections::HashMap;
 /// axum creates JSON or extracts it by using `axum::extract::Json`.
 /// For this demo, see functions `get_demo_json` and `put_demo_json`.
 use serde_json::{json, Value};
+
+mod auth_service;
+mod profile_service;
+mod task_service;
+mod gateway;
 
 #[tokio::main]
 async fn main() {
@@ -239,12 +222,10 @@ pub async fn get_items_id(axum::extract::Path(id): axum::extract::Path<String>) 
 /////
 
 /// See file book.rs, which defines the `Book` struct.
-mod book;
-use crate::book::Book;
 
 /// See file data.rs, which defines the DATA global variable.
-mod data;
-use crate::data::DATA;
+use crate::auth_service::user::User;
+
 
 /// Use Thread for spawning a thread e.g. to acquire our crate::DATA mutex lock.
 use std::thread;

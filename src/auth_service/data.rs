@@ -1,4 +1,6 @@
-use crate::user::User;
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
+use crate::User;
 
 pub static User: Lazy<Mutex<HashMap<u32, User>>> = Lazy::new(|| Mutex::new(None));
 
