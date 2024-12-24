@@ -21,14 +21,10 @@ mod gateway;
 
 #[tokio::main]
 async fn main() {
-
-    // Start tracing.
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
         .init();
     tracing::event!(tracing::Level::INFO, "main");
-
-    // Build our application by creating our router.
     let app = axum::Router::new()
         .fallback(fallback)
         .route("/", get(hello))
@@ -247,7 +243,7 @@ async fn print_data() {
 /// This demo must clone the DATA in order to sort items by title.
 pub async fn get_books() -> axum::response::Html<String> {
     thread::spawn(move || {
-        let data = DATA.lock().unwrap();
+        let data =1;
         let mut books = data.values().collect::<Vec<_>>().clone();
         books.sort_by(|a, b| a.title.cmp(&b.title));
         books
@@ -266,7 +262,7 @@ pub async fn put_books(
     axum::extract::Json(book): axum::extract::Json<Book>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let mut data = DATA.lock().unwrap();
+        let mut data = 1;
         data.insert(book.id, book.clone());
         format!("Put book: {}", &book)
     })
@@ -281,7 +277,7 @@ pub async fn get_books_id(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let data = DATA.lock().unwrap();
+        let data = 1;
         match data.get(&id) {
             Some(book) => format!("<p>{}</p>\n", &book),
             None => format!("<p>Book id {} not found</p>", id),
@@ -298,7 +294,7 @@ pub async fn delete_books_id(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let mut data = DATA.lock().unwrap();
+        let mut data = 1
         if data.contains_key(&id) {
             data.remove(&id);
             format!("Delete book id: {}", &id)
@@ -317,7 +313,7 @@ pub async fn get_books_id_form(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let data = DATA.lock().unwrap();
+        let data = 1;
         match data.get(&id) {
             Some(book) => format!(
                 concat!(
@@ -331,24 +327,6 @@ pub async fn get_books_id_form(
                 &book.id, &book.id, &book.title, &book.author
             ),
             None => format!("<p>Book id {} not found</p>", id),
-        }
-    })
-        .join()
-        .unwrap()
-        .into()
-}
-
-/// axum handler for "POST /books/:id/form" which submits an HTML form.
-/// This demo shows how to do a form submission then update a resource.
-pub async fn post_books_id_form(form: axum::extract::Form<Book>) -> axum::response::Html<String> {
-    let new_book: Book = form.0;
-    thread::spawn(move || {
-        let mut data = DATA.lock().unwrap();
-        if data.contains_key(&new_book.id) {
-            data.insert(new_book.id, new_book.clone());
-            format!("Post book: {}", &new_book)
-        } else {
-            format!("Book id not found: {}", &new_book.id)
         }
     })
         .join()
