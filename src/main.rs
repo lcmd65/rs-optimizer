@@ -25,13 +25,14 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
     tracing::event!(tracing::Level::INFO, "main");
+
     let app = axum::Router::new()
         .fallback(fallback)
         .route("/", get(hello))
-        .route("/hello.html", get(hello_html))
+        .route("/resources/index.html", get(hello_html))
         .route("/demo-status", get(demo_status))
         .route("/demo-uri", get(demo_uri))
-        .route("/demo.html", get(get_demo_html))
+        .route("/resources/demo.html", get(get_demo_html))
         .route("/demo.png", get(get_demo_png))
         .route("/demo.json", get(get_demo_json).put(put_demo_json))
         .route(
@@ -225,13 +226,14 @@ use crate::auth_service::user::User;
 
 /// Use Thread for spawning a thread e.g. to acquire our crate::DATA mutex lock.
 use std::thread;
+use crate::auth_service::data::GLOBAL_USER;
 
 /// To access data, create a thread, spawn it, then get the lock.
 /// When you're done, then join the thread with its parent thread.
 #[allow(dead_code)]
 async fn print_data() {
     thread::spawn(move || {
-        let data = DATA.lock().unwrap();
+        let data = GLOBAL_USER.lock().unwrap();
         println!("data: {:?}", data);
     })
         .join()
@@ -294,7 +296,7 @@ pub async fn delete_books_id(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let mut data = 1
+        let mut data = 1;
         if data.contains_key(&id) {
             data.remove(&id);
             format!("Delete book id: {}", &id)

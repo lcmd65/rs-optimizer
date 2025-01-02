@@ -1,4 +1,4 @@
-use std::collection::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 
 struct Graph {
