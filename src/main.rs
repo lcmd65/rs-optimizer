@@ -18,6 +18,7 @@ mod auth_service;
 mod profile_service;
 mod task_service;
 mod gateway;
+mod utils;
 
 #[tokio::main]
 async fn main() {
@@ -333,4 +334,22 @@ pub async fn get_users_id_form(
         .join()
         .unwrap()
         .into()
+}
+
+pub async fn authentication(
+    axum::extract::Path(user): axum::extract::Path<String>,
+) -> axum::response::Html<String> {
+
+
+    thread::spawn(move || {
+        let mut authen = db.session.query(user);
+
+        if authen{
+            put_user(&user);
+        }
+        format!(get)
+    })
+
+
+
 }
