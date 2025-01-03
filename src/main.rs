@@ -1,3 +1,4 @@
+use std::any::Any;
 /// Use axum capabilities.
 use axum::routing::get;
 
@@ -338,18 +339,16 @@ pub async fn get_users_id_form(
 
 pub async fn authentication(
     axum::extract::Path(user): axum::extract::Path<String>,
-) -> axum::response::Html<String> {
-
-
+) {
     thread::spawn(move || {
         let mut authen = db.session.query(user);
-
         if authen{
             put_user(&user);
+            get("index.html")
         }
-        format!(get)
+
+        else {
+            get("404.html")
+        }
     })
-
-
-
 }
