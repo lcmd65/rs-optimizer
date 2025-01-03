@@ -8,7 +8,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 /// axum extracts query parameters by using `axum::extract::Query`.
 /// For the implementation, see function `get_query`.
 use std::collections::HashMap;
-
+use std::net::Ipv6MulticastScope::Global;
 /// Use Serde JSON to serialize/deserialize JSON, such as in a request.
 /// axum creates JSON or extracts it by using `axum::extract::Json`.
 /// For this demo, see functions `get_demo_json` and `put_demo_json`.
@@ -45,11 +45,11 @@ async fn main() {
         )
         .route("/items", get(get_items))
         .route("/items/:id", get(get_items_id))
-        .route("/books", get(get_books).put(put_books))
-        .route("/books/:id", get(get_books_id).delete(delete_books_id))
+        .route("/books", get(get_users).put(put_user))
+        .route("/books/:id", get(get_users_id).delete(delete_user_id))
         .route(
             "/books/:id/form",
-            get(get_books_id_form).post(post_books_id_form),
+            get(get_users_id_form).post(post_users_id_form),
         );
 
     // Run our application as a hyper server on http://localhost:3000.
@@ -84,7 +84,7 @@ pub async fn hello() -> String {
 /// This uses the Rust macro `std::include_str` to include a UTF-8 file
 /// path, relative to `main.rs`, as a `&'static str` at compile time.
 async fn hello_html() -> axum::response::Html<&'static str> {
-    include_str!("hello.html").into()
+    include_str!("/resources/index.html").into()
 }
 
 /// axum handler for "GET /demo-status" which returns a HTTP status
@@ -243,14 +243,14 @@ async fn print_data() {
 /// axum handler for "GET /books" which responds with a resource page.
 /// This demo uses our DATA; a production app could use a database.
 /// This demo must clone the DATA in order to sort items by title.
-pub async fn get_books() -> axum::response::Html<String> {
+pub async fn get_users() -> axum::response::Html<String> {
     thread::spawn(move || {
-        let data =1;
-        let mut books = data.values().collect::<Vec<_>>().clone();
-        books.sort_by(|a, b| a.title.cmp(&b.title));
-        books
+        let data = GLOBAL_USER.lock().unwrap();
+        let mut users = data.values().collect::<Vec<_>>().clone();
+        users.sort_by(|a, b| a.id.cmp(&b.id));
+        users
             .iter()
-            .map(|&book| format!("<p>{}</p>\n", &book))
+            .map(|&user| format!("<p>{}</p>\n", &user))
             .collect::<String>()
     })
         .join()
@@ -260,13 +260,13 @@ pub async fn get_books() -> axum::response::Html<String> {
 
 /// axum handler for "PUT /books" which creates a new book resource.
 /// This demo shows how axum can extract JSON data into a Book struct.
-pub async fn put_books(
-    axum::extract::Json(book): axum::extract::Json<Book>,
+pub async fn put_user(
+    axum::extract::Json(user): axum::extract::Json<User>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let mut data = 1;
-        data.insert(book.id, book.clone());
-        format!("Put book: {}", &book)
+        let mut data = GLOBAL_USER.lock().unwrap();
+        data.insert(user);
+        format!("Put user: {}", &user)
     })
         .join()
         .unwrap()
@@ -275,13 +275,13 @@ pub async fn put_books(
 
 /// axum handler for "GET /books/:id" which responds with one resource HTML page.
 /// This demo app uses our crate::DATA variable, and iterates on it to find the id.
-pub async fn get_books_id(
+pub async fn get_users_id(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let data = 1;
+        let data = GLOBAL_USER.lock().unwrap();
         match data.get(&id) {
-            Some(book) => format!("<p>{}</p>\n", &book),
+            Some(user) => format!("<p>{}</p>\n", &user),
             None => format!("<p>Book id {} not found</p>", id),
         }
     })
@@ -292,16 +292,16 @@ pub async fn get_books_id(
 
 /// axum handler for "DELETE /books/:id" which destroys a resource.
 /// This demo extracts an id, then mutates the book in the DATA store.
-pub async fn delete_books_id(
+pub async fn delete_user_id(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let mut data = 1;
+        let mut data = GLOBAL_USER.lock().unwrap();
         if data.contains_key(&id) {
             data.remove(&id);
-            format!("Delete book id: {}", &id)
+            format!("Delete user id: {}", &id)
         } else {
-            format!("Book id not found: {}", &id)
+            format!("user id not found: {}", &id)
         }
     })
         .join()
@@ -311,24 +311,23 @@ pub async fn delete_books_id(
 
 /// axum handler for "GET /books/:id/form" which responds with a form.
 /// This demo shows how to write a typical HTML form with input fields.
-pub async fn get_books_id_form(
+pub async fn get_users_id_form(
     axum::extract::Path(id): axum::extract::Path<u32>,
 ) -> axum::response::Html<String> {
     thread::spawn(move || {
-        let data = 1;
+        let data = GLOBAL_USER.lock().unwrap();
         match data.get(&id) {
-            Some(book) => format!(
+            Some(user) => format!(
                 concat!(
-                "<form method=\"post\" action=\"/books/{}/form\">\n",
+                "<form method=\"post\" action=\"/users/{}/form\">\n",
                 "<input type=\"hidden\" name=\"id\" value=\"{}\">\n",
-                "<p><input name=\"title\" value=\"{}\"></p>\n",
-                "<p><input name=\"author\" value=\"{}\"></p>\n",
+                "<p><input name=\"name\" value=\"{}\"></p>\n",
                 "<input type=\"submit\" value=\"Save\">\n",
                 "</form>\n"
                 ),
-                &book.id, &book.id, &book.title, &book.author
+                &user.id, &user.id, &user.name
             ),
-            None => format!("<p>Book id {} not found</p>", id),
+            None => format!("<p>User id {} not found</p>", id),
         }
     })
         .join()
