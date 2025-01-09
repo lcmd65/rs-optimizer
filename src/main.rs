@@ -57,6 +57,8 @@ async fn main() {
     // Run our application as a hyper server on http://localhost:3000.
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
+
+
 }
 
 ////
@@ -335,20 +337,4 @@ pub async fn get_users_id_form(
         .join()
         .unwrap()
         .into()
-}
-
-pub async fn authentication(
-    axum::extract::Path(user): axum::extract::Path<String>,
-) {
-    thread::spawn(move || {
-        let mut authen = db.session.query(user);
-        if authen{
-            put_user(&user);
-            get("index.html")
-        }
-
-        else {
-            get("404.html")
-        }
-    })
 }

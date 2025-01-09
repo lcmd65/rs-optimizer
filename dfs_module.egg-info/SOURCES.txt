@@ -1,0 +1,7 @@
+README.md
+dfs_module/__init__.py
+dfs_module.egg-info/PKG-INFO
+dfs_module.egg-info/SOURCES.txt
+dfs_module.egg-info/dependency_links.txt
+dfs_module.egg-info/not-zip-safe
+dfs_module.egg-info/top_level.txt
